@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2f6f62">
+<title>Күнім — ақылды жоспарлағыш</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  :root{
+    --bg:#f4f6f3; --card:#ffffff; --ink:#1d2b27; --muted:#6b7a75; --line:#e2e8e4;
+    --main:#2f6f62; --main-soft:#e3f0ec;
+    --p1:#d9534f; --p2:#f0932b; --p3:#e7c434; --p4:#a8b3ae;
+    --fam:#7a5fc0; --fam-soft:#efeafb;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  .wrap{max-width:540px;margin:0 auto;padding:16px 14px 110px}
+  header h1{margin:4px 0 0;font-size:24px}
+  header p{margin:2px 0 12px;color:var(--muted);font-size:14px}
+  .tabs{display:flex;gap:6px;background:#e7ece9;padding:4px;border-radius:14px;margin-bottom:14px}
+  .tabs button{flex:1;border:0;background:transparent;padding:10px 4px;border-radius:10px;font-size:15px;font-weight:600;color:var(--muted)}
+  .tabs button.on{background:var(--card);color:var(--main);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .card{background:var(--card);border-radius:18px;padding:16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+  .now{background:var(--main);color:#fff}
+  .now small{opacity:.8;text-transform:uppercase;letter-spacing:.5px;font-size:12px;font-weight:700}
+  .now h2{margin:4px 0 6px;font-size:22px}
+  .now p{margin:0 0 12px;opacity:.9}
+  .now.fam{background:var(--fam)}
+  .btn{border:0;border-radius:12px;padding:11px 16px;font-size:15px;font-weight:600;background:var(--main);color:#fff}
+  .btn.light{background:#fff;color:var(--main)}
+  .btn.ghost{background:var(--main-soft);color:var(--main)}
+  .btn.red{background:#fbe9e8;color:var(--p1)}
+  .btn.full{width:100%}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .progress{height:8px;background:var(--line);border-radius:8px;overflow:hidden;margin-top:8px}
+  .progress div{height:100%;background:var(--main);transition:width .4s}
+  .warn{background:#fff6e6;border:1px solid #f6d59b}
+  .warn h3{margin:0 0 6px;font-size:16px}
+  .warn ul{margin:6px 0 10px;padding-left:20px}
+  .sec-title{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:18px 4px 8px}
+  .item{display:flex;gap:10px;align-items:center;background:var(--card);border-radius:14px;padding:12px;margin-bottom:8px;border-left:6px solid var(--p4)}
+  .item.p1{border-color:var(--p1)} .item.p2{border-color:var(--p2)} .item.p3{border-color:var(--p3)}
+  .item.famblock{border-color:var(--fam);background:var(--fam-soft)}
+  .item.done{opacity:.5} .item.done .t{text-decoration:line-through}
+  .item.cur{box-shadow:0 0 0 2px var(--main)}
+  .item .time{font-weight:700;font-size:14px;min-width:50px;color:var(--main)}
+  .item .time span{display:block;font-weight:400;color:var(--muted);font-size:12px}
+  .item .body{flex:1;min-width:0}
+  .item .t{font-weight:600;word-wrap:break-word}
+  .item .meta{font-size:12px;color:var(--muted)}
+  .late{color:var(--p1);font-weight:700}
+  .ib{border:0;background:#f0f3f1;border-radius:10px;width:38px;height:38px;font-size:17px;flex:none}
+  .empty{text-align:center;color:var(--muted);padding:26px 10px}
+  .fab{position:fixed;right:20px;bottom:24px;width:62px;height:62px;border-radius:50%;border:0;background:var(--main);color:#fff;font-size:32px;box-shadow:0 6px 16px rgba(47,111,98,.4);z-index:5}
+  .modal{position:fixed;inset:0;background:rgba(20,30,27,.45);display:none;align-items:flex-end;justify-content:center;z-index:10}
+  .modal.open{display:flex}
+  .sheet{background:var(--card);width:100%;max-width:540px;border-radius:22px 22px 0 0;padding:18px 16px 26px;max-height:92vh;overflow:auto}
+  .sheet h3{margin:0 0 12px}
+  label.l{display:block;font-size:13px;font-weight:700;color:var(--muted);margin:12px 0 6px}
+  input[type=text],input[type=time],select{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;font-size:16px;background:#fbfcfb;color:var(--ink)}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{border:1px solid var(--line);background:#fbfcfb;border-radius:20px;padding:8px 12px;font-size:14px}
+  .chip.on{background:var(--main);border-color:var(--main);color:#fff}
+  .hint{font-size:12px;color:var(--muted);margin-top:4px}
+  .toast{position:fixed;left:50%;top:14px;transform:translateX(-50%);width:calc(100% - 24px);max-width:520px;background:#1d2b27;color:#fff;border-radius:14px;padding:14px 44px 14px 14px;z-index:20;box-shadow:0 6px 20px rgba(0,0,0,.25);display:none}
+  .toast.show{display:block}
+  .toast b{display:block;margin-bottom:2px}
+  .toast button{position:absolute;right:8px;top:8px;border:0;background:transparent;color:#fff;font-size:20px}
+  .set-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .tip{font-size:14px;color:var(--muted);background:var(--main-soft);border-radius:12px;padding:10px 12px;margin-bottom:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 id="hello">Күнім</h1>
+    <p id="calm">Бәрін бірден ойлама. Тек қазіргі іске назар сал.</p>
+  </header>
+  <nav class="tabs">
+    <button data-tab="today" class="on">Бүгін</button>
+    <button data-tab="tomorrow">Ертең</button>
+    <button data-tab="settings">Баптау</button>
+  </nav>
+  <main id="view"></main>
+</div>
+
+<button class="fab" id="fab" aria-label="Жаңа іс қосу">+</button>
+
+<div class="toast" id="toast"><button onclick="hideToast()">×</button><div id="toastText"></div></div>
+
+<div class="modal" id="modal">
+  <div class="sheet">
+    <h3 id="fTitle">Жаңа іс</h3>
+    <label class="l">Не істеу керек?</label>
+    <input type="text" id="fName" placeholder="Мысалы: Есеп тапсыру, Анама қоңырау шалу" maxlength="80">
+
+    <label class="l">Маңыздылығы</label>
+    <div class="chips" id="fPrio">
+      <button class="chip" data-v="1">🔴 Маңызды әрі шұғыл</button>
+      <button class="chip" data-v="2">🟠 Маңызды, шұғыл емес</button>
+      <button class="chip" data-v="3">🟡 Шұғыл, маңызды емес</button>
+      <button class="chip" data-v="4">⚪ Уақыт болса</button>
+    </div>
+
+    <label class="l">Түрі</label>
+    <div class="chips" id="fCat">
+      <button class="chip" data-v="work">💼 Жұмыс/Оқу</button>
+      <button class="chip" data-v="home">🏠 Үй</button>
+      <button class="chip" data-v="family">👨‍👩‍👧 Отбасы</button>
+      <button class="chip" data-v="self">🧘 Өзім</button>
+    </div>
+
+    <label class="l">Қанша уақыт алады?</label>
+    <div class="chips" id="fDur">
+      <button class="chip" data-v="15">15 мин</button>
+      <button class="chip" data-v="30">30 мин</button>
+      <button class="chip" data-v="45">45 мин</button>
+      <button class="chip" data-v="60">1 сағ</button>
+      <button class="chip" data-v="90">1,5 сағ</button>
+      <button class="chip" data-v="120">2 сағ</button>
+      <button class="chip" data-v="180">3 сағ</button>
+    </div>
+
+    <label class="l">Қай күні?</label>
+    <div class="chips" id="fDay">
+      <button class="chip" data-v="today">Бүгін</button>
+      <button class="chip" data-v="tomorrow">Ертең</button>
+    </div>
+
+    <label class="l">Нақты уақыты бар ма? (міндетті емес)</label>
+    <input type="time" id="fFixed">
+    <div class="hint">Мысалы, кездесу 15:00-де болса жазыңыз. Бос қалдырсаңыз, бағдарлама уақытты өзі таңдайды.</div>
+
+    <div class="row" style="margin-top:18px">
+      <button class="btn" id="fSave" style="flex:1">Сақтау</button>
+      <button class="btn ghost" onclick="closeForm()">Болдырмау</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===================== ДЕРЕКТЕР ===================== */
+const KEY = 'kunim_v1';
+const CAT = {work:'💼', home:'🏠', family:'👨‍👩‍👧', self:'🧘'};
+const PRIO = {1:'Маңызды әрі шұғыл', 2:'Маңызды', 3:'Шұғыл', 4:'Уақыт болса'};
+const CALM = [
+  'Бәрін бірден ойлама. Тек қазіргі іске назар сал.',
+  'Барлығы жоспарда. Сен тек біреуін істе.',
+  'Үлгермегенің ертеңге ауысады — бұл қалыпты.',
+  'Маңыздысы алдымен. Қалғаны кейін.',
+  'Демалу да — жоспардың бір бөлігі.'
+];
+
+let S = load();
+let tab = 'today';
+let form = {};
+
+function load(){
+  try{
+    const d = JSON.parse(localStorage.getItem(KEY));
+    if(d && Array.isArray(d.tasks)) return d;
+  }catch(e){}
+  return {
+    tasks: [],
+    set: {dayStart:'08:00', dayEnd:'22:00', famFrom:'19:00', famTo:'20:00', planAt:'21:00', gap:10},
+    flags: {}
+  };
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+
+/* ===================== УАҚЫТ КӨМЕКШІЛЕРІ ===================== */
+const pad = n => String(n).padStart(2,'0');
+const ds = d => d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const today = () => ds(new Date());
+const tomorrow = () => { const d=new Date(); d.setDate(d.getDate()+1); return ds(d); };
+const toMin = t => { const [h,m] = t.split(':').map(Number); return h*60+m; };
+const toHM = m => pad(Math.floor(m/60)%24)+':'+pad(m%60);
+const nowMin = () => { const d=new Date(); return d.getHours()*60+d.getMinutes(); };
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const durTxt = m => m>=60 ? (Math.floor(m/60)+' сағ'+(m%60?' '+(m%60)+' мин':'')) : m+' мин';
+
+/* ===================== АҚЫЛДЫ ЖОСПАРЛАУ =====================
+   1) Нақты уақыты бар істер мен отбасы уақыты — алдын ала орын алады.
+   2) Қалған істер маңыздылығы бойынша (🔴 → 🟠 → 🟡 → ⚪) бос уақытқа орналасады.
+   3) Әр істен кейін қысқа үзіліс қалдырылады.
+   4) Сыймағандары «үлгермейтін» болып белгіленеді — ертеңге ауыстыруды ұсынамыз. */
+function plan(date){
+  const st = S.set, gap = Number(st.gap)||0, isToday = date===today(), n = nowMin();
+  let from = toMin(st.dayStart);
+  const end = toMin(st.dayEnd);
+  const busy = [];
+  const fa = toMin(st.famFrom), fb = toMin(st.famTo);
+  if(fb > fa) busy.push([fa, fb]);
+  if(isToday){ const r = Math.ceil(n/5)*5; if(r > from) from = r; }
+
+  const flex = [];
+  S.tasks.filter(t => t.date===date && !t.done).forEach(t => {
+    t.over = false;
+    if(t.fixed){
+      t.start = t.fixed;
+      busy.push([toMin(t.fixed), toMin(t.fixed)+t.dur+gap]);
+    } else if(isToday && t.start && toMin(t.start)<=n && toMin(t.start)+t.dur>n){
+      busy.push([toMin(t.start), toMin(t.start)+t.dur+gap]); // қазір жүріп жатқан іс орнында қалады
+    } else flex.push(t);
+  });
+
+  flex.sort((a,b) => a.prio-b.prio || a.created-b.created);
+  flex.forEach(t => {
+    let s = from, moved = true;
+    while(moved){
+      moved = false;
+      for(const [a,b] of busy){
+        if(s < b && s+t.dur > a){ s = b; moved = true; }
+      }
+    }
+    if(s + t.dur <= end){
+      t.start = toHM(s);
+      busy.push([s, s+t.dur+gap]);
+    } else { t.start = ''; t.over = true; }
+  });
+  save();
+}
+function replanAll(){ plan(today()); plan(tomorrow()); }
+
+/* Өткен күндердің бітпеген істері бүгінге ауысады */
+function carryOver(){
+  const d = today(); let moved = 0;
+  S.tasks.forEach(t => { if(!t.done && t.date < d){ t.date = d; t.start = ''; t.fixed = ''; moved++; } });
+  S.tasks = S.tasks.filter(t => !(t.done && t.date < d)); // ескі орындалғандарды тазалау
+  if(moved){ plan(d); setTimeout(()=>toast('📦 Кешегі '+moved+' іс бүгінге ауысты','Олар маңыздылығы бойынша қайта орналастырылды.'), 600); }
+  save();
+}
+
+/* ===================== КӨРІНІС ===================== */
+function render(){
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab===tab));
+  document.getElementById('fab').style.display = tab==='settings' ? 'none' : 'block';
+  const h = new Date().getHours();
+  document.getElementById('hello').textContent =
+    h<5 ? 'Қайырлы түн 🌙' : h<12 ? 'Қайырлы таң ☀️' : h<18 ? 'Қайырлы күн 🌤' : 'Қайырлы кеш 🌆';
+  const v = document.getElementById('view');
+  if(tab==='settings') v.innerHTML = settingsView();
+  else v.innerHTML = dayView(tab==='today' ? today() : tomorrow());
+}
+
+function dayView(date){
+  const isToday = date===today(), n = nowMin(), st = S.set;
+  const tasks = S.tasks.filter(t => t.date===date);
+  const planned = tasks.filter(t => t.start || t.done);
+  const over = tasks.filter(t => !t.done && t.over);
+  const done = tasks.filter(t => t.done).length;
+  let html = '';
+
+  if(isToday){
+    html += nowCard(tasks, n);
+    if(tasks.length){
+      const pct = Math.round(done/tasks.length*100);
+      html += `<div class="card"><div class="row" style="justify-content:space-between">
+        <b>Бүгінгі прогресс</b><span>${done} / ${tasks.length}</span></div>
+        <div class="progress"><div style="width:${pct}%"></div></div></div>`;
+    }
+  } else {
+    html += `<div class="tip">🌙 Кешке 2–3 минут жұмса: ертеңгі істерді осында жаз. Бағдарлама оларды маңыздылығы бойынша уақытқа өзі бөледі, ертең таңертең не істейтініңді біліп оянасың.</div>`;
+  }
+
+  if(over.length){
+    html += `<div class="card warn"><h3>⚠️ ${isToday?'Бүгін':'Ертең'} бәріне уақыт жетпейді</h3>
+      <div>Бұл қалыпты жағдай. Маңызды істер орналасты, мыналар сыймай қалды:</div>
+      <ul>${over.map(t=>`<li>${esc(t.title)} (${durTxt(t.dur)})</li>`).join('')}</ul>
+      <button class="btn full" onclick="moveOver('${date}')">${isToday?'Бәрін ертеңге ауыстыру':'Бәрін келесі күнге қалдыру'}</button></div>`;
+  }
+
+  // Уақыт кестесі
+  const items = planned.map(t => ({t, s: t.start ? toMin(t.start) : 9999}));
+  const fa = toMin(st.famFrom), fb = toMin(st.famTo);
+  if(fb > fa) items.push({fam:true, s:fa});
+  items.sort((a,b) => a.s-b.s);
+
+  html += `<div class="row" style="justify-content:space-between;margin:18px 4px 8px">
+    <span class="sec-title" style="margin:0">${isToday?'Бүгінгі кесте':'Ертеңгі кесте'}</span>
+    ${tasks.length?`<button class="btn ghost" style="padding:7px 12px;font-size:13px" onclick="replan('${date}')">🔄 Қайта жоспарлау</button>`:''}
+  </div>`;
+
+  if(!tasks.length){
+    html += `<div class="empty">Әзірге іс жоқ.<br>Төмендегі <b>+</b> батырмасын басып, іс қосыңыз.</div>`;
+  }
+  if(tasks.length || fb>fa){
+    items.forEach(it => {
+      if(it.fam){
+        html += `<div class="item famblock"><div class="time">${st.famFrom}<span>${st.famTo}</span></div>
+          <div class="body"><div class="t">👨‍👩‍👧 Отбасы уақыты</div><div class="meta">Бұл уақытқа жұмыс қойылмайды</div></div></div>`;
+        return;
+      }
+      const t = it.t;
+      const s = t.start ? toMin(t.start) : null;
+      const cur = isToday && !t.done && s!==null && s<=n && n<s+t.dur;
+      const late = isToday && !t.done && s!==null && n>=s+t.dur;
+      html += `<div class="item p${t.prio} ${t.done?'done':''} ${cur?'cur':''}">
+        <div class="time">${t.start||'—'}<span>${t.start?toHM(s+t.dur):''}</span></div>
+        <div class="body" onclick="openForm('${t.id}')">
+          <div class="t">${CAT[t.cat]||''} ${esc(t.title)}</div>
+          <div class="meta">${PRIO[t.prio]} · ${durTxt(t.dur)}${t.fixed?' · 📌 нақты уақыт':''}
+          ${cur?' · <b style="color:var(--main)">қазір</b>':''}${late?' · <span class="late">кешікті</span>':''}</div>
+        </div>
+        <button class="ib" title="Орындалды" onclick="toggleDone('${t.id}')">${t.done?'↩️':'✅'}</button>
+        <button class="ib" title="${isToday?'Ертеңге':'Бүгінге'}" onclick="moveTask('${t.id}')">${isToday?'➡️':'⬅️'}</button>
+      </div>`;
+    });
+  }
+
+  if(tasks.some(t=>!t.done && t.start)){
+    html += `<button class="btn ghost full" style="margin-top:10px" onclick="exportIcs('${date}')">📅 Телефон күнтізбесіне сақтау</button>
+      <div class="hint" style="text-align:center">Бағдарлама жабық тұрса да, телефон күнтізбесі ескертеді</div>`;
+  }
+  return html;
+}
+
+function nowCard(tasks, n){
+  const fa = toMin(S.set.famFrom), fb = toMin(S.set.famTo);
+  const open = tasks.filter(t => !t.done && t.start);
+  const cur = open.find(t => toMin(t.start)<=n && n<toMin(t.start)+t.dur);
+  const late = open.filter(t => n>=toMin(t.start)+t.dur);
+  const next = open.filter(t => toMin(t.start)>n).sort((a,b)=>toMin(a.start)-toMin(b.start))[0];
+  let lateHtml = late.length ? `<p style="margin-top:10px">⏳ ${late.length} іс кешікті. <u onclick="replan('${today()}')" style="cursor:pointer">Қайта жоспарлау</u></p>` : '';
+
+  if(cur){
+    const left = toMin(cur.start)+cur.dur-n;
+    return `<div class="card now"><small>Қазір осыны істе</small>
+      <h2>${CAT[cur.cat]||''} ${esc(cur.title)}</h2>
+      <p>${cur.start}–${toHM(toMin(cur.start)+cur.dur)} · ${left} мин қалды. Қалғанын ойлама 🙂</p>
+      <button class="btn light" onclick="toggleDone('${cur.id}')">✅ Бітірдім</button>${lateHtml}</div>`;
+  }
+  if(n>=fa && n<fb){
+    return `<div class="card now fam"><small>Қазір</small><h2>👨‍👩‍👧 Отбасы уақыты</h2>
+      <p>Телефонды қоя тұр. Жақындарыңмен бол. ${S.set.famTo}-ге дейін.</p>${lateHtml}</div>`;
+  }
+  if(next){
+    const wait = toMin(next.start)-n;
+    return `<div class="card now"><small>Келесі іс · ${next.start}-де (${durTxt(wait)} қалды)</small>
+      <h2>${CAT[next.cat]||''} ${esc(next.title)}</h2>
+      <p>Қазір бос уақыт. Демалуға немесе бірден бастауға болады.</p>
+      <button class="btn light" onclick="startNow('${next.id}')">▶️ Қазір бастау</button>${lateHtml}</div>`;
+  }
+  if(late.length){
+    return `<div class="card now"><small>Назар аударыңыз</small><h2>⏳ ${late.length} іс кешікті</h2>
+      <p>Уайымдама. Бағдарлама оларды қалған уақытқа қайта бөледі.</p>
+      <button class="btn light" onclick="replan('${today()}')">🔄 Қайта жоспарлау</button></div>`;
+  }
+  if(tasks.length && tasks.every(t=>t.done)){
+    return `<div class="card now"><small>Керемет!</small><h2>🎉 Бүгінгі істің бәрі бітті</h2>
+      <p>Енді өзіңе және отбасыңа уақыт бөл. Ертеңгі күнді жоспарлауды ұмытпа.</p>
+      <button class="btn light" onclick="setTab('tomorrow')">🌙 Ертеңді жоспарлау</button></div>`;
+  }
+  return `<div class="card now"><small>Бастайық</small><h2>Бүгін не істейміз?</h2>
+    <p>Ойыңдағы барлық істі жаз — қайсысын қашан істеу керегін бағдарлама өзі шешеді.</p>
+    <button class="btn light" onclick="openForm()">+ Іс қосу</button></div>`;
+}
+
+function settingsView(){
+  const st = S.set;
+  const perm = ('Notification' in window) ? Notification.permission : 'none';
+  const permTxt = perm==='granted' ? '✅ Хабарламалар қосулы' : perm==='denied' ? '❌ Хабарламалар бұғатталған (телефон баптауларынан рұқсат беріңіз)' : perm==='none' ? 'Бұл браузер хабарламаны қолдамайды' : 'Хабарламалар әлі қосылмаған';
+  return `
+  <div class="card">
+    <b>🔔 Ескертулер</b>
+    <p class="hint" style="font-size:14px">${permTxt}</p>
+    ${perm==='default'?'<button class="btn full" onclick="askPerm()">Хабарламаларды қосу</button>':''}
+    <button class="btn ghost full" style="margin-top:8px" onclick="testNotify()">Ескертуді тексеру</button>
+  </div>
+  <div class="card">
+    <b>🕗 Күн тәртібі</b>
+    <div class="set-grid">
+      <div><label class="l">Күн басталады</label><input type="time" id="sDayStart" value="${st.dayStart}"></div>
+      <div><label class="l">Күн аяқталады</label><input type="time" id="sDayEnd" value="${st.dayEnd}"></div>
+      <div><label class="l">Отбасы уақыты: басы</label><input type="time" id="sFamFrom" value="${st.famFrom}"></div>
+      <div><label class="l">Отбасы уақыты: соңы</label><input type="time" id="sFamTo" value="${st.famTo}"></div>
+      <div><label class="l">Кешкі жоспарлау</label><input type="time" id="sPlanAt" value="${st.planAt}"></div>
+      <div><label class="l">Істер арасындағы үзіліс</label>
+        <select id="sGap">${[0,5,10,15,20].map(g=>`<option value="${g}" ${Number(st.gap)===g?'selected':''}>${g} мин</option>`).join('')}</select></div>
+    </div>
+    <button class="btn full" style="margin-top:14px" onclick="saveSettings()">Сақтау</button>
+  </div>
+  <div class="card">
+    <b>ℹ️ Бағдарлама туралы</b>
+    <p class="hint" style="font-size:14px">«Күнім» интернетсіз жұмыс істейді. Барлық дерек тек сіздің телефоныңызда сақталады.</p>
+    <button class="btn red full" onclick="wipe()">Барлық деректі өшіру</button>
+  </div>`;
+}
+
+/* ===================== ӘРЕКЕТТЕР ===================== */
+function setTab(t){ tab = t; render(); window.scrollTo(0,0); }
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => setTab(b.dataset.tab));
+document.getElementById('fab').onclick = () => openForm();
+
+function find(id){ return S.tasks.find(t => t.id===id); }
+function toggleDone(id){
+  const t = find(id); if(!t) return;
+  t.done = !t.done;
+  if(t.done){
+    const left = S.tasks.filter(x => x.date===t.date && !x.done).length;
+    toast('🎉 Жарайсың!', left ? 'Келесі іске дейін аздап демал.' : 'Бүгінгі істің бәрі бітті!');
+  }
+  save(); render();
+}
+function moveTask(id){
+  const t = find(id); if(!t) return;
+  const from = t.date;
+  t.date = from===today() ? tomorrow() : today();
+  t.start = ''; t.fixed = ''; t.done = false;
+  plan(t.date); plan(from); render();
+  toast(t.date===today()?'⬅️ Бүгінге ауысты':'➡️ Ертеңге ауысты', t.title);
+}
+function moveOver(date){
+  const target = date===today() ? tomorrow() : (()=>{const d=new Date();d.setDate(d.getDate()+2);return ds(d);})();
+  S.tasks.forEach(t => { if(t.date===date && !t.done && t.over){ t.date = target; t.start=''; t.fixed=''; t.over=false; }});
+  plan(date); if(target===tomorrow()) plan(target); render();
+  toast('✅ Ауыстырылды','Енді бүгінгі жоспар шынайы. Асықпа.');
+}
+function replan(date){ plan(date); render(); toast('🔄 Жоспар жаңартылды','Істер маңыздылығы бойынша қайта бөлінді.'); }
+function startNow(id){
+  const t = find(id); if(!t) return;
+  t.fixed = ''; t.start = toHM(nowMin());
+  plan(today()); render();
+  toast('▶️ Бастадық!', t.title);
+}
+
+/* --- Форма --- */
+function chipGroup(id, key){
+  document.querySelectorAll('#'+id+' .chip').forEach(c => c.onclick = () => {
+    form[key] = c.dataset.v; syncChips();
+  });
+}
+function syncChips(){
+  [['fPrio','prio'],['fCat','cat'],['fDur','dur'],['fDay','day']].forEach(([id,key]) =>
+    document.querySelectorAll('#'+id+' .chip').forEach(c => c.classList.toggle('on', String(form[key])===c.dataset.v)));
+}
+chipGroup('fPrio','prio'); chipGroup('fCat','cat'); chipGroup('fDur','dur'); chipGroup('fDay','day');
+
+function openForm(id){
+  const t = id ? find(id) : null;
+  form = t ? {id:t.id, prio:String(t.prio), cat:t.cat, dur:String(t.dur), day: t.date===tomorrow()?'tomorrow':'today'}
+           : {prio:'2', cat:'work', dur:'30', day: tab==='tomorrow'?'tomorrow':'today'};
+  document.getElementById('fTitle').textContent = t ? 'Істі өзгерту' : 'Жаңа іс';
+  document.getElementById('fName').value = t ? t.title : '';
+  document.getElementById('fFixed').value = t ? (t.fixed||'') : '';
+  let del = document.getElementById('fDel');
+  if(del) del.remove();
+  if(t){
+    del = document.createElement('button');
+    del.id='fDel'; del.className='btn red'; del.textContent='🗑'; del.onclick = () => delTask(t.id);
+    document.getElementById('fSave').parentNode.appendChild(del);
+  }
+  syncChips();
+  document.getElementById('modal').classList.add('open');
+  if(!t) setTimeout(()=>document.getElementById('fName').focus(), 100);
+}
+function closeForm(){ document.getElementById('modal').classList.remove('open'); }
+document.getElementById('modal').onclick = e => { if(e.target.id==='modal') closeForm(); };
+
+document.getElementById('fSave').onclick = () => {
+  const title = document.getElementById('fName').value.trim();
+  if(!title){ document.getElementById('fName').focus(); return; }
+  const date = form.day==='tomorrow' ? tomorrow() : today();
+  let t = form.id ? find(form.id) : null;
+  const oldDate = t ? t.date : null;
+  if(!t){ t = {id: Date.now().toString(36)+Math.random().toString(36).slice(2,6), created: Date.now(), done:false}; S.tasks.push(t); }
+  Object.assign(t, {title, prio:Number(form.prio), cat:form.cat, dur:Number(form.dur), date,
+                    fixed: document.getElementById('fFixed').value || '', start:''});
+  plan(date); if(oldDate && oldDate!==date) plan(oldDate);
+  closeForm(); render();
+  if(t.over) toast('⚠️ Бұл іске '+(date===today()?'бүгін':'ертең')+' уақыт сыймады', date===today()?'Оны ертеңге ауыстыруды ұсынамын.':'Басқа істі қысқартып көріңіз.');
+  else toast('✅ Қосылды', t.title+' → '+t.start);
+};
+function delTask(id){
+  if(!confirm('Бұл істі өшіресіз бе?')) return;
+  const t = find(id); S.tasks = S.tasks.filter(x => x.id!==id);
+  if(t) plan(t.date);
+  closeForm(); render();
+}
+
+/* --- Баптаулар --- */
+function saveSettings(){
+  const g = id => document.getElementById(id).value;
+  const st = {dayStart:g('sDayStart'), dayEnd:g('sDayEnd'), famFrom:g('sFamFrom'), famTo:g('sFamTo'), planAt:g('sPlanAt'), gap:Number(g('sGap'))};
+  if(Object.values(st).some(v => v==='')){ toast('Қате','Барлық уақытты толтырыңыз.'); return; }
+  if(toMin(st.dayEnd) <= toMin(st.dayStart)){ toast('Қате','Күннің соңы басынан кейін болуы керек.'); return; }
+  S.set = st; replanAll(); toast('✅ Сақталды','Жоспар жаңа тәртіппен қайта бөлінді.'); render();
+}
+function wipe(){
+  if(!confirm('Барлық іс пен баптау өшеді. Сенімдісіз бе?')) return;
+  localStorage.removeItem(KEY); S = load(); render();
+}
+
+/* ===================== ЕСКЕРТУЛЕР ===================== */
+let audio;
+function beep(){
+  try{
+    audio = audio || new (window.AudioContext||window.webkitAudioContext)();
+    [0, .35].forEach(d => {
+      const o = audio.createOscillator(), g = audio.createGain();
+      o.frequency.value = 880; o.connect(g); g.connect(audio.destination);
+      g.gain.setValueAtTime(.25, audio.currentTime+d); g.gain.exponentialRampToValueAtTime(.001, audio.currentTime+d+.3);
+      o.start(audio.currentTime+d); o.stop(audio.currentTime+d+.3);
+    });
+  }catch(e){}
+}
+let toastTimer;
+function toast(title, body){
+  document.getElementById('toastText').innerHTML = '<b>'+esc(title)+'</b>'+esc(body||'');
+  const el = document.getElementById('toast'); el.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(hideToast, 6000);
+}
+function hideToast(){ document.getElementById('toast').classList.remove('show'); }
+
+async function notify(title, body){
+  toast(title, body); beep();
+  try{ navigator.vibrate && navigator.vibrate([300,150,300]); }catch(e){}
+  if('Notification' in window && Notification.permission==='granted'){
+    try{
+      const reg = navigator.serviceWorker && await navigator.serviceWorker.getRegistration();
+      if(reg){ await reg.showNotification(title, {body, icon:'icon-192.png', badge:'icon-192.png', tag:title, renotify:true, vibrate:[300,150,300]}); return; }
+    }catch(e){}
+    try{ new Notification(title, {body, icon:'icon-192.png'}); }catch(e){}
+  }
+}
+async function askPerm(){
+  if(!('Notification' in window)) return;
+  await Notification.requestPermission(); render();
+}
+function testNotify(){ notify('▶️ Осыны баста!', 'Ескерту осылай келеді. Бәрі дұрыс жұмыс істеп тұр.'); }
+
+/* Әр 20 секунд сайын тексереді: қай іс басталды, қашан ескерту керек */
+function tick(){
+  const d = today(), n = nowMin(), st = S.set, f = S.flags; let ch = false;
+  if(f.day !== d){ f.day = d; carryOver(); }
+  S.tasks.forEach(t => {
+    if(t.date!==d || t.done || !t.start) return;
+    const s = toMin(t.start), k = d+'_'+t.start;
+    if(n>=s && n<s+t.dur && t.nStart!==k){ t.nStart = k; t.nPre = k; ch = true;
+      notify('▶️ Осыны баста!', t.title+' ('+durTxt(t.dur)+'). Тек осыған назар аудар.'); }
+    else if(n>=s-5 && n<s && t.nPre!==k){ t.nPre = k; ch = true;
+      notify('⏰ 5 минуттан кейін', '«'+t.title+'» басталады. Дайындал.'); }
+  });
+  const ds0 = toMin(st.dayStart);
+  if(n>=ds0 && n<ds0+180 && f.morn!==d){ f.morn = d; ch = true;
+    const top = S.tasks.filter(t=>t.date===d && !t.done).sort((a,b)=>a.prio-b.prio)[0];
+    notify('☀️ Қайырлы таң!', top ? 'Бүгінгі ең маңызды іс: '+top.title : 'Бүгінге істеріңді жазып ал.'); }
+  const fa = toMin(st.famFrom), fb = toMin(st.famTo);
+  if(n>=fa && n<fb && f.fam!==d){ f.fam = d; ch = true;
+    notify('👨‍👩‍👧 Отбасы уақыты', 'Жұмысты қоя тұр. Жақындарыңа уақыт бөл.'); }
+  if(n>=toMin(st.planAt) && f.eve!==d){ f.eve = d; ch = true;
+    const cnt = S.tasks.filter(t=>t.date===tomorrow()).length;
+    notify('🌙 Ертеңгі күнді жоспарлайық', cnt ? 'Ертеңге '+cnt+' іс бар. Тексеріп шық.' : '2 минут жұмса — ертең не істейтініңді біліп оянасың.'); }
+  if(ch) save();
+  if(!document.getElementById('modal').classList.contains('open')) render();
+}
+
+/* ===================== КҮНТІЗБЕГЕ ЭКСПОРТ (.ics) ===================== */
+function exportIcs(date){
+  const ev = S.tasks.filter(t => t.date===date && !t.done && t.start);
+  if(!ev.length) return;
+  const D = date.replace(/-/g,''), stamp = new Date().toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
+  const tx = s => s.replace(/[\\,;]/g, m => '\\'+m).replace(/\n/g,'\\n');
+  const hm = m => pad(Math.floor(Math.min(m,1439)/60))+pad(Math.min(m,1439)%60)+'00';
+  const L = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Kunim//KZ','CALSCALE:GREGORIAN','METHOD:PUBLISH'];
+  ev.forEach(t => {
+    const s = toMin(t.start);
+    L.push('BEGIN:VEVENT','UID:'+t.id+'-'+D+'@kunim','DTSTAMP:'+stamp,
+      'DTSTART:'+D+'T'+hm(s),'DTEND:'+D+'T'+hm(s+t.dur),'SUMMARY:'+tx(t.title),
+      'DESCRIPTION:'+tx(PRIO[t.prio]+' · Күнім бағдарламасы'),
+      'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+tx('Осыны баста: '+t.title),'TRIGGER:-PT5M','END:VALARM',
+      'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+tx('Осыны баста: '+t.title),'TRIGGER:PT0M','END:VALARM',
+      'END:VEVENT');
+  });
+  L.push('END:VCALENDAR');
+  const blob = new Blob([L.join('\r\n')], {type:'text/calendar'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'kunim-'+date+'.ics';
+  document.body.appendChild(a); a.click(); a.remove();
+  toast('📅 Файл жүктелді','Оны ашып, телефон күнтізбесіне қосыңыз.');
+}
+
+/* ===================== ІСКЕ ҚОСУ ===================== */
+document.getElementById('calm').textContent = CALM[new Date().getDate() % CALM.length];
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+tick();
+setInterval(tick, 20000);
+document.addEventListener('visibilitychange', () => { if(!document.hidden) tick(); });
+</script>
+</body>
+</html>
